@@ -49,6 +49,12 @@ export async function POST(req: NextRequest) {
     [grant.hub_user_id, grant.name, grant.email ?? ""],
   );
   await ensureProfile(grant.hub_user_id);
+  await query(
+    `INSERT INTO notifications (user_id, title, body)
+     SELECT $1, 'أهلاً بك في نادي اللياقة البدنية', 'ابدأ بتأكيد موقعك في الجيم ثم سجّل تمارينك اليومية.'
+     WHERE NOT EXISTS (SELECT 1 FROM notifications WHERE user_id = $1)`,
+    [grant.hub_user_id],
+  );
   const user = { hub_user_id: grant.hub_user_id, name: grant.name, email: grant.email ?? "" };
   return NextResponse.json({ token: mintApiToken(user), user });
 }

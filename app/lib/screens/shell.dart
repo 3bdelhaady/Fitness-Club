@@ -4,6 +4,7 @@ import 'home.dart';
 import 'workout.dart';
 import 'chat.dart';
 import 'profile.dart';
+import 'notifications.dart';
 
 class Shell extends StatefulWidget {
   const Shell({super.key});
@@ -21,12 +22,16 @@ class _ShellState extends State<Shell> {
       appBar: AppBar(
         title: const Text('Fitness Club',
             style: TextStyle(fontWeight: FontWeight.w800, fontSize: 20, color: FC.navy)),
-        actions: const [
-          Icon(Icons.notifications_outlined, color: FC.navy),
-          SizedBox(width: 12),
-          CircleAvatar(radius: 17, backgroundColor: FC.navy,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.notifications_outlined, color: FC.navy),
+            onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const NotificationsScreen())),
+          ),
+          const SizedBox(width: 12),
+          const CircleAvatar(radius: 17, backgroundColor: FC.navy,
               child: Icon(Icons.person, size: 18, color: Colors.white)),
-          SizedBox(width: 16),
+          const SizedBox(width: 16),
         ],
       ),
       body: pages[tab],

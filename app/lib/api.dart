@@ -73,6 +73,8 @@ class Api {
   static Future<void> subscribe(int gymId, int planId) async => await _post('/api/v1/gyms/$gymId/subscribe', {'plan_id': planId});
   static Future<List<dynamic>> chatMessages() async => (await _get('/api/v1/chat'))['messages'];
   static Future<String> chatSend(String body) async => (await _post('/api/v1/chat', {'body': body}))['reply'];
+  static Future<Map<String, dynamic>> notifications() async => await _get('/api/v1/notifications');
+  static Future<void> markNotificationsRead() async => await _post('/api/v1/notifications', {});
   static Future<void> updateMe({String? goal, List<String>? schedule}) async =>
       await _post('/api/v1/me', {'goal': goal, 'schedule': schedule});
 }

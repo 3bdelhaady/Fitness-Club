@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import '../api.dart';
 import '../theme.dart';
 import 'workout.dart';
@@ -19,15 +20,29 @@ class _CheckinScreenState extends State<CheckinScreen> {
     Api.checkinStatus().then((r) => setState(() => verified = r['verified'] == true));
   }
 
+  String? error;
+
   Future<void> send() async {
-    setState(() => sending = true);
-    // TODO(geolocator): use device GPS when the geolocator plugin is added;
-    // backend defaults to the gym area when coordinates are approximate.
-    await Api.checkin(30.0444, 31.2357);
     setState(() {
-      sending = false;
-      verified = true;
+      sending = true;
+      error = null;
     });
+    try {
+      var perm = await Geolocator.checkPermission();
+      if (perm == LocationPermission.denied) {
+        perm = await Geolocator.requestPermission();
+      }
+      if (perm == LocationPermission.denied || perm == LocationPermission.deniedForever) {
+        throw Exception('permission');
+      }
+      final pos = await Geolocator.getCurrentPosition();
+      await Api.checkin(pos.latitude, pos.longitude);
+      setState(() => verified = true);
+    } catch (_) {
+      setState(() => error = 'تعذر تحديد موقعك. تأكد من تفعيل الموقع والإذن ثم حاول مرة أخرى.');
+    } finally {
+      setState(() => sending = false);
+    }
   }
 
   @override
@@ -68,6 +83,10 @@ class _CheckinScreenState extends State<CheckinScreen> {
                 textAlign: TextAlign.center, style: TextStyle(color: FC.muted)),
             const SizedBox(height: 12),
             FC.chip('لم يتم تحديد الموقع بعد'),
+            if (error != null) ...[
+              const SizedBox(height: 12),
+              Text(error!, style: const TextStyle(color: Colors.red, fontSize: 13), textAlign: TextAlign.center),
+            ],
             const SizedBox(height: 24),
             FC.navyButton(sending ? 'جارٍ الإرسال...' : 'ارسل الموقع الان', sending ? null : send),
           ]),
