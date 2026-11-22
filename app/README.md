@@ -28,3 +28,14 @@ Splash، تسجيل الدخول، الرئيسية (إحصائيات + سلسل
 الروتين، غامبول AI (حاسبة سعرات/بروتين + اقتراح وجبات)، الملف الشخصي
 (الهدف، الجيم، الجدول الأسبوعي)، الجيمات القريبة + خطط الاشتراك (طلب فقط،
 بدون دفع).
+
+
+## App Links (بديل الـ WebView، عند النشر)
+1. ارفع الـ backend على دومين HTTPS وثبّت `FITNESS_APP_ORIGIN` عليه.
+2. حطّ بصمة شهادة التوقيع (release SHA-256) في `backend/public/.well-known/assetlinks.json`.
+3. أضف intent-filter بـ `android:autoVerify="true"` في AndroidManifest لنفس
+   الدومين و pathPrefix `/api/auth/hub/callback` — الرابط هيفتح التطبيق مباشرة
+   بدل المتصفح. مسار الـ WebView الحالي يفضل شغال كـ fallback.
+
+## بناء APK
+يحتاج Android SDK على جهاز التطوير: `flutter build apk --release`.
