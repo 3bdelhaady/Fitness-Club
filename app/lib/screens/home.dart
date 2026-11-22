@@ -42,7 +42,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         style: const TextStyle(color: FC.muted, fontSize: 13)),
                   ]),
                 ]),
-                FC.chip('سلسلة ${profile['streak'] ?? 0} يوم', icon: Icons.local_fire_department),
+                FC.chip('سلسلة ${home['streak'] ?? 0} يوم', icon: Icons.local_fire_department),
               ]),
               const SizedBox(height: 16),
               Row(

@@ -27,6 +27,22 @@ export async function GET(req: NextRequest) {
     "SELECT 1 FROM checkins WHERE user_id = $1 AND at::date = CURRENT_DATE",
     [u.hub_user_id],
   );
+  // streak: consecutive check-in days, still alive if today has none yet
+  const days = await queryOne<any>(
+    `WITH d AS (SELECT DISTINCT at::date AS day FROM checkins WHERE user_id = $1),
+       g AS (SELECT day, day - (row_number() OVER (ORDER BY day))::int AS grp FROM d)
+     SELECT max(day) AS last_day, count(*) AS len FROM g
+     GROUP BY grp ORDER BY last_day DESC LIMIT 1`,
+    [u.hub_user_id],
+  );
+  let streak = 0;
+  if (days?.last_day) {
+    const last = new Date(days.last_day);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const diff = Math.round((today.getTime() - last.getTime()) / 86400000);
+    if (diff <= 1) streak = Number(days.len);
+  }
   const volume = Math.round(stats?.volume ?? 0);
   return ok({
     user: u,
@@ -37,6 +53,7 @@ export async function GET(req: NextRequest) {
       kcalToday: Math.round(kcal?.kcal ?? 0),
       kcalGoal: 742,
       checkedIn: !!checkin,
+      streak,
     },
   });
 }
